@@ -13,6 +13,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+      
+    - name: Run static analysis
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        security-checks: 'vuln,secret,config'
+        ignore-unfixed: true
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL'
+
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+        category: 'code'
+
     - name: Upload to S3
       uses: jakejarvis/s3-sync-action@master
       with:
