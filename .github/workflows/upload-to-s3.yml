@@ -4,37 +4,22 @@ on:
     branches:
       - master
   pull_request:
-  
 jobs:
-  trivy-scanning-job:
-    name: trivy-sec-scan
-    runs-on: ubuntu-latest
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          ignore-unfixed: true
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'HIGH,CRITICAL'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v1
-        with:
-          sarif_file: 'trivy-results.sarif'
-
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Build an image from Dockerfile
         run: |
-          docker build -t docker.io/devops-counsel/py-app:${{ github.sha }} .
-      
+          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'docker.io/devops-counsel/py-app:${{ github.sha }}'
+          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
           format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
